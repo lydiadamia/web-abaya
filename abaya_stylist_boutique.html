@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abaya Stylist Boutique - Simulator Mewah</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Playfair Display & Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            DEFAULT: '#D4AF37',
+                            light: '#F5E6AD',
+                            dark: '#A38018'
+                        },
+                        emerald: {
+                            900: '#064E3B',
+                            800: '#065F46',
+                            700: '#047857'
+                        },
+                        nude: {
+                            50: '#FAF6F0',
+                            100: '#F4ECE1',
+                            200: '#E8D8C3',
+                            300: '#D9C1A3',
+                            400: '#C5A880',
+                            500: '#B08E5F',
+                        },
+                        rose: {
+                            gold: '#B76E79',
+                            soft: '#E8C5C8',
+                            blush: '#FFF5F5'
+                        }
+                    },
+                    fontFamily: {
+                        playfair: ['"Playfair Display"', 'serif'],
+                        poppins: ['Poppins', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #FAF6F0 0%, #F4ECE1 100%);
+            color: #362D2C;
+            user-select: none;
+        }
+
+        .font-playfair { font-family: 'Playfair Display', serif; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #F4ECE1; }
+        ::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 4px; }
+
+        .card-glass {
+            background: rgba(255, 255, 255, 0.90);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #D4AF37 0%, #A38018 100%);
+            color: white;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+        }
+        .btn-gold:hover:not(:disabled) {
+            background: linear-gradient(135deg, #E5C158 0%, #B89222 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(212, 175, 55, 0.45);
+        }
+
+        .btn-rose {
+            background: linear-gradient(135deg, #B76E79 0%, #8E4B55 100%);
+            color: white;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(183, 110, 121, 0.3);
+        }
+        .btn-rose:hover:not(:disabled) {
+            background: linear-gradient(135deg, #C97F8A 0%, #9F5661 100%);
+            transform: translateY(-2px);
+        }
+
+        .tab-btn.active {
+            border-bottom: 3px solid #D4AF37;
+            color: #A38018;
+            background: rgba(212, 175, 55, 0.08);
+        }
+
+        /* SVG Fabric Shimmer Animation */
+        @keyframes shimmerEffect {
+            0% { opacity: 0.3; transform: translateX(-100%); }
+            100% { opacity: 0.7; transform: translateX(100%); }
+        }
+        .shimmer {
+            animation: shimmerEffect 2.5s infinite;
+        }
+
+        /* Float mannequin */
+        @keyframes floatAnim {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+        .animate-float {
+            animation: floatAnim 4s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <!-- HEADER / STATS DASHBOARD -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gold/30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
+            
+            <!-- Logo & Boutique Rank -->
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-900 via-emerald-800 to-gold flex items-center justify-center text-gold-light shadow-md border border-gold/40">
+                    <i class="fa-solid fa-crown text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-playfair text-xl font-bold tracking-wide text-gray-900 flex items-center gap-2">
+                        HAUTE NOUR ABAYA
+                        <span id="rank-badge" class="text-[10px] px-2.5 py-0.5 rounded-full bg-gold/15 text-gold-dark font-sans font-bold border border-gold/30">Boutique Glamour</span>
+                    </h1>
+                    <p class="text-xs text-gray-500">Stylist Master: Level <span id="player-level" class="font-bold text-emerald-800">1</span></p>
+                </div>
+            </div>
+
+            <!-- Main Stats -->
+            <div class="flex items-center gap-3 md:gap-6 bg-nude-50/90 px-4 py-2 rounded-2xl border border-nude-200">
+                <!-- Money -->
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs shadow-inner">
+                        RM
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase tracking-wider text-gray-400 font-bold">Wang Tunai</p>
+                        <p class="text-sm font-bold text-gray-900" id="money-display">RM 800</p>
+                    </div>
+                </div>
+
+                <div class="h-7 w-px bg-nude-300"></div>
+
+                <!-- Reputation Stars -->
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-xs shadow-inner">
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase tracking-wider text-gray-400 font-bold">Reputasi</p>
+                        <p class="text-sm font-bold text-gray-900" id="reputation-display">0 ★</p>
+                    </div>
+                </div>
+
+                <div class="h-7 w-px bg-nude-300"></div>
+
+                <!-- Sales Count -->
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-full bg-rose-100 text-rose-gold flex items-center justify-center text-xs shadow-inner">
+                        <i class="fa-solid fa-bag-shopping"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase tracking-wider text-gray-400 font-bold">Jualan</p>
+                        <p class="text-sm font-bold text-gray-900" id="sales-display">0 Abaya</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls (Audio & Reset) -->
+            <div class="flex items-center gap-2">
+                <button onclick="toggleAudio()" id="audio-toggle-btn" class="w-9 h-9 rounded-xl bg-nude-100 text-gray-600 hover:bg-gold/20 hover:text-gold-dark transition flex items-center justify-center" title="Buka/Tutup Bunyi">
+                    <i class="fa-solid fa-volume-high" id="audio-icon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- NAVIGATION TABS -->
+    <div class="max-w-7xl mx-auto w-full px-4 pt-4">
+        <div class="flex justify-center sm:justify-start border-b border-nude-300 gap-1 sm:gap-4">
+            <button onclick="switchTab('boutique')" id="tab-boutique" class="tab-btn active px-5 py-3 font-semibold text-xs sm:text-sm rounded-t-xl transition flex items-center gap-2">
+                <i class="fa-solid fa-shop"></i> Kaunter Butik & Pelanggan
+            </button>
+            <button onclick="switchTab('studio')" id="tab-studio" class="tab-btn px-5 py-3 font-semibold text-xs sm:text-sm text-gray-500 rounded-t-xl hover:text-gold-dark transition flex items-center gap-2">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Studio Rekaan Abaya
+            </button>
+            <button onclick="switchTab('showcase')" id="tab-showcase" class="tab-btn px-5 py-3 font-semibold text-xs sm:text-sm text-gray-500 rounded-t-xl hover:text-gold-dark transition flex items-center gap-2">
+                <i class="fa-solid fa-shirt"></i> Rak Pameran Koleksi (<span id="showcase-count">0</span>)
+            </button>
+            <button onclick="switchTab('upgrades')" id="tab-upgrades" class="tab-btn px-5 py-3 font-semibold text-xs sm:text-sm text-gray-500 rounded-t-xl hover:text-gold-dark transition flex items-center gap-2">
+                <i class="fa-solid fa-gem"></i> Naik Taraf Butik
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN GAME WORKSPACE -->
+    <main class="max-w-7xl mx-auto w-full px-4 py-6 flex-1">
+
+        <!-- ================= SECTION 1: BOUTIQUE COUNTER ================= -->
+        <section id="sec-boutique" class="tab-content grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Left: Customer Queue Panel -->
+            <div class="lg:col-span-4 flex flex-col gap-4">
+                <div class="card-glass rounded-2xl p-5">
+                    <div class="flex justify-between items-center mb-4 border-b border-nude-200 pb-3">
+                        <h2 class="font-playfair font-bold text-lg text-gray-900 flex items-center gap-2">
+                            <i class="fa-solid fa-users text-gold"></i> Barisan Pelanggan
+                        </h2>
+                        <span class="text-xs bg-gold/15 text-gold-dark font-bold px-2.5 py-0.5 rounded-full" id="queue-badge">0 Orang</span>
+                    </div>
+
+                    <p class="text-xs text-gray-500 mb-3">Pilih pelanggan untuk melayan dan memenuhi hajat gaya Abaya mereka!</p>
+
+                    <div id="customer-queue-list" class="flex flex-col gap-3 min-h-[340px] max-h-[440px] overflow-y-auto pr-1">
+                        <!-- Dynamic Customers -->
+                    </div>
+                </div>
+
+                <!-- Active Assistant Banner -->
+                <div class="card-glass rounded-2xl p-4 flex items-center justify-between border-l-4 border-l-gold">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-rose-blush text-rose-gold border border-rose-soft flex items-center justify-center text-base">
+                            <i class="fa-solid fa-user-check"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] uppercase font-bold text-gray-400">Pembantu Stylist</p>
+                            <p class="text-xs font-bold text-gray-800" id="assistant-status">Belum Diupah</p>
+                        </div>
+                    </div>
+                    <button onclick="switchTab('upgrades')" class="text-xs font-bold text-gold-dark underline hover:text-gold">Upah Stylist</button>
+                </div>
+            </div>
+
+            <!-- Right: Active Fitting Room / Service Lounge -->
+            <div class="lg:col-span-8">
+                <div id="active-customer-box" class="card-glass rounded-2xl p-6 min-h-[500px] flex flex-col justify-between relative overflow-hidden">
+                    
+                    <!-- Empty Customer State -->
+                    <div id="empty-fitting-state" class="flex flex-col items-center justify-center text-center my-auto py-20">
+                        <div class="w-20 h-20 rounded-full bg-nude-100 flex items-center justify-center text-gold text-3xl mb-4 border border-gold/30">
+                            <i class="fa-solid fa-couch"></i>
+                        </div>
+                        <h3 class="font-playfair text-xl font-bold text-gray-800">Ruang Layan VIP</h3>
+                        <p class="text-xs text-gray-500 max-w-sm mt-1">Tiada pelanggan yang sedang dilayan. Sila pilih pelanggan daripada barisan di sebelah kiri.</p>
+                    </div>
+
+                    <!-- Active Customer Service UI -->
+                    <div id="active-fitting-content" class="hidden flex-col justify-between h-full gap-6">
+                        
+                        <!-- Customer Brief Card -->
+                        <div class="bg-gradient-to-r from-nude-50 to-white p-4 rounded-xl border border-gold/30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div class="flex items-center gap-4">
+                                <div id="cust-avatar-icon" class="w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-soft to-nude-200 border-2 border-gold flex items-center justify-center text-2xl text-emerald-900 shadow-sm">
+                                    <i class="fa-solid fa-user-female"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h3 class="font-playfair font-bold text-lg text-gray-900" id="cust-name-text">Puan Datin Hajah</h3>
+                                        <span id="cust-tag-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-900 text-gold-light">Majlis Raya</span>
+                                    </div>
+                                    <p class="text-xs italic text-gray-600 mt-1" id="cust-dialog-text">"Saya perlukan abaya mewah berhiaskan kristal untuk majlis santapan."</p>
+                                </div>
+                            </div>
+                            <div class="text-right border-t sm:border-0 border-nude-200 pt-2 sm:pt-0 w-full sm:w-auto flex sm:flex-col justify-between items-end">
+                                <span class="text-[10px] text-gray-400 font-bold uppercase">Bajet Maksimum</span>
+                                <span class="text-lg font-bold text-emerald-800" id="cust-budget-text">RM 650</span>
+                            </div>
+                        </div>
+
+                        <!-- Requirements Checklist -->
+                        <div>
+                            <h4 class="text-xs font-bold uppercase text-gray-500 tracking-wider mb-2">Keutamaan Cita Rasa Pelanggan:</h4>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                                <div class="p-2.5 rounded-xl bg-white border border-nude-200 text-center">
+                                    <span class="text-[10px] text-gray-400 block">Potongan</span>
+                                    <span class="font-bold text-gray-800" id="req-cut-text">Kimono / Kaftan</span>
+                                </div>
+                                <div class="p-2.5 rounded-xl bg-white border border-nude-200 text-center">
+                                    <span class="text-[10px] text-gray-400 block">Kain Preference</span>
+                                    <span class="font-bold text-gray-800" id="req-fabric-text">Sutra Velvet</span>
+                                </div>
+                                <div class="p-2.5 rounded-xl bg-white border border-nude-200 text-center">
+                                    <span class="text-[10px] text-gray-400 block">Warna Utama</span>
+                                    <span class="font-bold text-gray-800" id="req-color-text">Emerald Green</span>
+                                </div>
+                                <div class="p-2.5 rounded-xl bg-white border border-nude-200 text-center">
+                                    <span class="text-[10px] text-gray-400 block">Jenis Hiasan</span>
+                                    <span class="font-bold text-gray-800" id="req-acc-text">Swarovski</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Choose Outfit from Inventory / Quick Design -->
+                        <div class="flex-1 flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <h4 class="text-xs font-bold text-gray-700">Pilih Abaya Koleksi Anda Untuk Disyorkan:</h4>
+                                    <button onclick="switchTab('studio')" class="text-xs font-bold text-gold-dark hover:underline flex items-center gap-1">
+                                        <i class="fa-solid fa-plus text-[10px]"></i> Reka Baru Di Studio
+                                    </button>
+                                </div>
+
+                                <div id="customer-select-rack" class="grid grid-cols-1 sm:grid-cols-3 gap-3 max-h-[200px] overflow-y-auto pr-1">
+                                    <!-- Abayas ready for customer -->
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="flex gap-3 pt-4 border-t border-nude-200 mt-4">
+                                <button onclick="declineCurrentCustomer()" class="px-4 py-3 rounded-xl border border-rose-300 text-rose-700 font-bold text-xs hover:bg-rose-50 transition w-1/3">
+                                    <i class="fa-solid fa-xmark"></i> Tolak Pelanggan
+                                </button>
+                                <button id="recommend-sell-btn" onclick="sellSelectedAbayaToCustomer()" disabled class="btn-gold flex-1 py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 opacity-50 cursor-not-allowed">
+                                    <i class="fa-solid fa-hand-holding-dollar text-base"></i> Cadang & Jual Abaya ini
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ================= SECTION 2: DESIGN STUDIO ================= -->
+        <section id="sec-studio" class="tab-content hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Customizer Controls -->
+            <div class="lg:col-span-7 card-glass rounded-2xl p-6 flex flex-col justify-between gap-5">
+                <div>
+                    <h2 class="font-playfair text-xl font-bold text-gray-900">Studio Rekaan & Customization</h2>
+                    <p class="text-xs text-gray-500">Koleksi fesyen terbaru yang unik dan eksklusif bermula di sini.</p>
+                </div>
+
+                <!-- 1. Potongan Cut -->
+                <div>
+                    <label class="text-[11px] font-bold uppercase tracking-wider text-gray-500 block mb-2">1. Potongan & Bentuk Abaya</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" id="studio-cuts"></div>
+                </div>
+
+                <!-- 2. Kain Material -->
+                <div>
+                    <label class="text-[11px] font-bold uppercase tracking-wider text-gray-500 block mb-2">2. Material Kain Eksklusif</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" id="studio-fabrics"></div>
+                </div>
+
+                <!-- 3. Palet Warna -->
+                <div>
+                    <label class="text-[11px] font-bold uppercase tracking-wider text-gray-500 block mb-2">3. Palet Warna Abaya</label>
+                    <div class="flex flex-wrap gap-2.5" id="studio-colors"></div>
+                </div>
+
+                <!-- 4. Hiasan Ornament -->
+                <div>
+                    <label class="text-[11px] font-bold uppercase tracking-wider text-gray-500 block mb-2">4. Hiasan & Detailing</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" id="studio-accs"></div>
+                </div>
+
+                <!-- 5. Padanan Hijab/Shawl -->
+                <div>
+                    <label class="text-[11px] font-bold uppercase tracking-wider text-gray-500 block mb-2">5. Padanan Hijab / Shawl</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" id="studio-shawls"></div>
+                </div>
+
+                <!-- Pricing & Naming -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-nude-200">
+                    <div>
+                        <label class="text-xs font-bold text-gray-700 block mb-1">Nama Koleksi Abaya</label>
+                        <input type="text" id="abaya-name-field" value="Abaya Royale Emerald" class="w-full px-3 py-2 text-xs rounded-xl border border-nude-300 focus:outline-none focus:border-gold bg-white">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-700 block mb-1">Harga Jualan Ditetapkan (RM)</label>
+                        <input type="number" id="abaya-price-field" value="380" min="50" max="3500" class="w-full px-3 py-2 text-xs rounded-xl border border-nude-300 focus:outline-none focus:border-gold bg-white">
+                    </div>
+                </div>
+
+                <button onclick="saveCustomAbaya()" class="btn-gold py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-sparkles"></i> Simpan Rekaan Ke Rak Pameran
+                </button>
+            </div>
+
+            <!-- Mannequin Visualizer Studio -->
+            <div class="lg:col-span-5 card-glass rounded-2xl p-6 flex flex-col justify-between items-center text-center min-h-[500px]">
+                <div class="w-full flex justify-between items-center border-b border-nude-200 pb-3">
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-gold-dark bg-gold/15 px-3 py-1 rounded-full border border-gold/30">Pratonton Real-Time</span>
+                    <span class="text-xs font-bold text-gray-600" id="creation-cost-text">Kos Bahan: RM 90</span>
+                </div>
+
+                <!-- Interactive SVG Mannequin Display -->
+                <div class="relative w-full max-w-[260px] h-[360px] my-auto flex items-center justify-center animate-float">
+                    
+                    <!-- SVG Abaya Render Container -->
+                    <svg id="abaya-svg-preview" class="w-full h-full filter drop-shadow-xl" viewBox="0 0 300 450" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Head / Hijab Shape -->
+                        <path id="svg-hijab" d="M110 90 C110 50, 190 50, 190 90 C190 125, 110 125, 110 90 Z" fill="#362D2C" />
+                        <ellipse id="svg-face" cx="150" cy="92" rx="20" ry="24" fill="#F3D3BD" />
+
+                        <!-- Mannequin Base Stand -->
+                        <rect x="145" y="410" width="10" height="30" fill="#A38018" opacity="0.4" />
+                        <ellipse cx="150" cy="438" rx="45" ry="8" fill="#A38018" opacity="0.3" />
+
+                        <!-- Main Abaya Dress Body -->
+                        <g id="svg-abaya-body">
+                            <!-- Base Body Shape dynamically mutated by JS -->
+                            <path id="svg-dress-base" d="M115 130 L185 130 L210 400 L90 400 Z" fill="#064E3B" />
+                            <!-- Sleeves -->
+                            <path id="svg-sleeve-left" d="M115 130 L75 230 L100 240 L130 150 Z" fill="#047857" />
+                            <path id="svg-sleeve-right" d="M185 130 L225 230 L200 240 L170 150 Z" fill="#047857" />
+                        </g>
+
+                        <!-- Inner Dress Cut / Trim overlay -->
+                        <path id="svg-front-trim" d="M147 130 L153 130 L153 400 L147 400 Z" fill="#D4AF37" />
+
+                        <!-- Ornament Detailing -->
+                        <g id="svg-ornament-group">
+                            <!-- Dynamic crystals/embroidery dots -->
+                            <circle cx="150" cy="160" r="4" fill="#FFFFFF" class="shimmer" />
+                            <circle cx="150" cy="190" r="4" fill="#FFFFFF" class="shimmer" />
+                            <circle cx="150" cy="220" r="4" fill="#FFFFFF" class="shimmer" />
+                        </g>
+                    </svg>
+
+                </div>
+
+                <!-- Preview Info Footer -->
+                <div class="w-full bg-nude-50 p-3 rounded-xl border border-nude-200 text-left flex justify-between items-center text-xs">
+                    <div>
+                        <p class="font-bold text-gray-800" id="preview-title-display">Abaya Royale Emerald</p>
+                        <p class="text-[10px] text-gray-500" id="preview-desc-display">Sutera Velvet • Swarovski • A-Line</p>
+                    </div>
+                    <span class="font-bold text-emerald-800 text-sm" id="preview-price-display">RM 380</span>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ================= SECTION 3: SHOWCASE RACK ================= -->
+        <section id="sec-showcase" class="tab-content hidden flex flex-col gap-4">
+            <div class="card-glass rounded-2xl p-6">
+                <div class="flex justify-between items-center border-b border-nude-200 pb-4 mb-4">
+                    <div>
+                        <h2 class="font-playfair font-bold text-xl text-gray-900">Rak Pameran Abaya Siap</h2>
+                        <p class="text-xs text-gray-500">Koleksi rekaan yang sedia dijual kepada pelanggan di butik.</p>
+                    </div>
+                    <button onclick="switchTab('studio')" class="btn-gold px-4 py-2 rounded-xl text-xs font-bold">
+                        <i class="fa-solid fa-plus"></i> Reka Abaya Baru
+                    </button>
+                </div>
+
+                <div id="showcase-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <!-- Dynamic Rack Items -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 4: UPGRADES STORE ================= -->
+        <section id="sec-upgrades" class="tab-content hidden grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Materials & Features Unlock -->
+            <div class="card-glass rounded-2xl p-6 flex flex-col gap-4">
+                <h2 class="font-playfair font-bold text-lg text-gray-900 flex items-center gap-2 border-b border-nude-200 pb-3">
+                    <i class="fa-solid fa-gem text-gold"></i> Buka Material & Hiasan Baru
+                </h2>
+
+                <div id="material-upgrades-list" class="flex flex-col gap-3">
+                    <!-- Dynamic Upgrade Cards -->
+                </div>
+            </div>
+
+            <!-- Boutique Interior & Assistant -->
+            <div class="card-glass rounded-2xl p-6 flex flex-col gap-4">
+                <h2 class="font-playfair font-bold text-lg text-gray-900 flex items-center gap-2 border-b border-nude-200 pb-3">
+                    <i class="fa-solid fa-couch text-gold"></i> Hiasan Interior & Pembantu
+                </h2>
+
+                <div id="interior-upgrades-list" class="flex flex-col gap-3">
+                    <!-- Dynamic Interior Upgrade Cards -->
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white/80 border-t border-nude-200 py-3 text-center text-xs text-gray-400">
+        <p>Haute Nour Abaya Stylist Simulator &copy; 2026 • Rekaan Fesyen Abaya Eksklusif</p>
+    </footer>
+
+    <!-- GAME LOGIC JAVASCRIPT -->
+    <script>
+        /* ================= GAME STATE & DATA ================= */
+        const gameState = {
+            money: 800,
+            reputation: 0,
+            salesCount: 0,
+            level: 1,
+            selectedTab: 'boutique',
+            audioEnabled: true,
+            assistantLevel: 0, // 0: None, 1: Junior, 2: Senior
+            customerInterval: null,
+
+            // Active Customer
+            activeCustomer: null,
+            selectedAbayaForCust: null,
+
+            // Inventory Collection (Showcase)
+            inventory: [],
+
+            // Design Studio State
+            currentDesign: {
+                name: 'Abaya Royale Emerald',
+                price: 380,
+                cut: 'aline',
+                fabric: 'velvet',
+                color: '#064E3B',
+                colorName: 'Emerald Green',
+                acc: 'swarovski',
+                shawl: '#362D2C'
+            },
+
+            // Unlocks
+            unlockedFabrics: ['nida', 'chiffon'],
+            unlockedAccs: ['plain', 'lace'],
+            unlockedInteriors: []
+        };
+
+        /* Game Catalog Data */
+        const CUTS_DATA = {
+            'aline': { name: 'A-Line Klasik', costMult: 1.0, pathD: 'M115 130 L185 130 L210 400 L90 400 Z' },
+            'kaftan': { name: 'Butterfly Kaftan', costMult: 1.25, pathD: 'M115 130 L185 130 L235 390 L65 390 Z' },
+            'kimono': { name: 'Open Kimono', costMult: 1.15, pathD: 'M115 130 L185 130 L200 400 L100 400 Z' },
+            'straight': { name: 'Straight Cut Modern', costMult: 1.05, pathD: 'M120 130 L180 130 L185 400 L115 400 Z' }
+        };
+
+        const FABRICS_DATA = {
+            'nida': { name: 'Premium Nida', baseCost: 40, reqUnlock: null },
+            'chiffon': { name: 'Chiffon Silk', baseCost: 55, reqUnlock: null },
+            'velvet': { name: 'Sutera Velvet', baseCost: 90, reqUnlock: 'velvet' },
+            'linen': { name: 'Cotton Linen', baseCost: 35, reqUnlock: null }
+        };
+
+        const COLORS_DATA = [
+            { name: 'Midnight Black', hex: '#1A1A1A' },
+            { name: 'Emerald Green', hex: '#064E3B' },
+            { name: 'Soft Rose', hex: '#B76E79' },
+            { name: 'Cream Ivory', hex: '#F4ECE1' },
+            { name: 'Royal Blue', hex: '#1E3A8A' },
+            { name: 'Burgundy Red', hex: '#581C87' }
+        ];
+
+        const ACCS_DATA = {
+            'plain': { name: 'Plain Minimal', cost: 10, reqUnlock: null },
+            'lace': { name: 'Minimalist Lace', cost: 25, reqUnlock: null },
+            'gold_emb': { name: 'Sulaman Gold', cost: 60, reqUnlock: 'gold_emb' },
+            'swarovski': { name: 'Swarovski Crystal', cost: 110, reqUnlock: 'swarovski' }
+        };
+
+        const SHAWLS_DATA = [
+            { name: 'Match Hijab Black', hex: '#1A1A1A' },
+            { name: 'Cream Chiffon', hex: '#F4ECE1' },
+            { name: 'Rose Silk', hex: '#B76E79' },
+            { name: 'Gold Gloss Shawl', hex: '#D4AF37' }
+        ];
+
+        // Customer Queue Data
+        let customerQueue = [];
+        const CUSTOMER_NAMES = ['Datin Hajah Faridah', 'Puan Maria', 'Cik Sofia', 'Tunku Aishah', 'Puan Nurul', 'Datin Seri Zariah'];
+        const CUSTOMER_TAGS = [
+            { tag: 'Hari Raya VIP', prefTheme: 'Mewah', budgetMin: 500, budgetMax: 1200 },
+            { tag: 'Majlis Malam', prefTheme: 'Eksklusif', budgetMin: 450, budgetMax: 900 },
+            { tag: 'Kasual Santai', prefTheme: 'Selesa', budgetMin: 180, budgetMax: 350 },
+            { tag: 'Gaya Pejabat', prefTheme: 'Kemasyhuran', budgetMin: 250, budgetMax: 500 }
+        ];
+
+        /* Upgrades Store Catalog */
+        const UPGRADES_CATALOG = {
+            fabrics: [
+                { id: 'velvet', name: 'Kain Sutera Velvet Mewah', cost: 400, desc: 'Buka fabrik Velvet yang sangat dicari oleh pelanggan VIP.' }
+            ],
+            accs: [
+                { id: 'gold_emb', name: 'Benang Sulaman Emas (Gold Thread)', cost: 350, desc: 'Buka hiasan sulaman motif bunga emas eksklusif.' },
+                { id: 'swarovski', name: 'Kristal Swarovski Original', cost: 600, desc: 'Buka hiasan kristal berkuasa tinggi untuk abaya VIP.' }
+            ],
+            interiors: [
+                { id: 'chandelier', name: 'Lampu Kristal Chandelier', cost: 500, desc: 'Meningkatkan Bajet Pelanggan yang datang sebanyak 25%!' },
+                { id: 'assistant', name: 'Upah Pembantu Stylist (Maya)', cost: 800, desc: 'Pembantu melayan pelanggan secara automatik setiap 12 saat.' }
+            ]
+        };
+
+        /* ================= AUDIO SYNTHESIZER (WEB AUDIO API) ================= */
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            if (!gameState.audioEnabled) return;
+            initAudio();
+            if (!audioCtx) return;
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'click') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(800, now + 0.05);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.05);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            } else if (type === 'sell') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                osc.frequency.setValueAtTime(1046.50, now + 0.3); // C6
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.5);
+                osc.start(now);
+                osc.stop(now + 0.5);
+            } else if (type === 'level') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(900, now + 0.4);
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            }
+        }
+
+        function toggleAudio() {
+            gameState.audioEnabled = !gameState.audioEnabled;
+            const icon = document.getElementById('audio-icon');
+            if (gameState.audioEnabled) {
+                icon.className = 'fa-solid fa-volume-high';
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark text-rose-600';
+            }
+        }
+
+        /* ================= GAME INITIALIZATION ================= */
+        window.onload = function() {
+            // Seed initial inventory
+            gameState.inventory.push({
+                id: Date.now(),
+                name: 'Abaya Royale Emerald',
+                price: 380,
+                cut: 'aline',
+                fabric: 'nida',
+                color: '#064E3B',
+                colorName: 'Emerald Green',
+                acc: 'lace',
+                shawl: '#362D2C'
+            });
+
+            // Render Studio Controls
+            renderStudioOptions();
+            updateStudioPreview();
+
+            // Spawn initial customers
+            spawnCustomer();
+            spawnCustomer();
+
+            // Start customer spawner timer
+            gameState.customerInterval = setInterval(() => {
+                if (customerQueue.length < 5) {
+                    spawnCustomer();
+                }
+                // Assistant Auto Layan
+                if (gameState.assistantLevel > 0 && customerQueue.length > 0 && !gameState.activeCustomer) {
+                    autoServeCustomer();
+                }
+            }, 8000);
+
+            // Initial UI Updates
+            updateUI();
+            renderShowcase();
+            renderUpgrades();
+        };
+
+        /* ================= UI TABS NAVIGATION ================= */
+        function switchTab(tabId) {
+            playSound('click');
+            gameState.selectedTab = tabId;
+
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            document.getElementById(`sec-${tabId}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+        }
+
+        /* ================= CUSTOMER GENERATION & QUEUE ================= */
+        function spawnCustomer() {
+            const randomName = CUSTOMER_NAMES[Math.floor(Math.random() * CUSTOMER_NAMES.length)];
+            const tagData = CUSTOMER_TAGS[Math.floor(Math.random() * CUSTOMER_TAGS.length)];
+            
+            // Interior multiplier
+            const hasChandelier = gameState.unlockedInteriors.includes('chandelier');
+            const multiplier = hasChandelier ? 1.25 : 1.0;
+
+            const budget = Math.round((Math.floor(Math.random() * (tagData.budgetMax - tagData.budgetMin)) + tagData.budgetMin) * multiplier);
+
+            const cuts = Object.keys(CUTS_DATA);
+            const fabrics = Object.keys(FABRICS_DATA);
+            const accs = Object.keys(ACCS_DATA);
+
+            const cust = {
+                id: Date.now() + Math.random(),
+                name: randomName,
+                tag: tagData.tag,
+                budget: budget,
+                prefCut: cuts[Math.floor(Math.random() * cuts.length)],
+                prefFabric: fabrics[Math.floor(Math.random() * fabrics.length)],
+                prefColor: COLORS_DATA[Math.floor(Math.random() * COLORS_DATA.length)],
+                prefAcc: accs[Math.floor(Math.random() * accs.length)],
+                dialog: `"Saya perlukan abaya untuk ${tagData.tag.toLowerCase()} dengan cita rasa eksklusif!"`
+            };
+
+            customerQueue.push(cust);
+            renderCustomerQueue();
+        }
+
+        function renderCustomerQueue() {
+            const container = document.getElementById('customer-queue-list');
+            document.getElementById('queue-badge').innerText = `${customerQueue.length} Orang`;
+
+            if (customerQueue.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-gray-400 py-10">
+                        <i class="fa-solid fa-clock fa-spin text-xl mb-2 text-gold"></i>
+                        <p class="text-xs">Menunggu pelanggan baru tiba...</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = customerQueue.map(cust => `
+                <div onclick="selectCustomerToServe(${cust.id})" class="p-3 bg-white rounded-xl border border-nude-200 hover:border-gold cursor-pointer transition flex items-center justify-between shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gold/15 text-gold-dark flex items-center justify-center font-bold text-base">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-xs text-gray-800">${cust.name}</h4>
+                            <span class="text-[10px] text-gray-400">${cust.tag}</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-bold text-emerald-800 block">RM ${cust.budget}</span>
+                        <span class="text-[9px] text-gold-dark font-bold underline">Layan Sekarang &rarr;</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectCustomerToServe(custId) {
+            playSound('click');
+            const cust = customerQueue.find(c => c.id === custId);
+            if (!cust) return;
+
+            gameState.activeCustomer = cust;
+            gameState.selectedAbayaForCust = null;
+
+            // Hide empty state, show active content
+            document.getElementById('empty-fitting-state').classList.add('hidden');
+            document.getElementById('active-fitting-content').classList.remove('hidden');
+            document.getElementById('active-fitting-content').classList.add('flex');
+
+            // Set UI texts
+            document.getElementById('cust-name-text').innerText = cust.name;
+            document.getElementById('cust-tag-badge').innerText = cust.tag;
+            document.getElementById('cust-dialog-text').innerText = cust.dialog;
+            document.getElementById('cust-budget-text').innerText = `RM ${cust.budget}`;
+
+            document.getElementById('req-cut-text').innerText = CUTS_DATA[cust.prefCut].name;
+            document.getElementById('req-fabric-text').innerText = FABRICS_DATA[cust.prefFabric].name;
+            document.getElementById('req-color-text').innerText = cust.prefColor.name;
+            document.getElementById('req-acc-text').innerText = ACCS_DATA[cust.prefAcc].name;
+
+            renderRackForCustomer();
+        }
+
+        function renderRackForCustomer() {
+            const container = document.getElementById('customer-select-rack');
+            const btn = document.getElementById('recommend-sell-btn');
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            if (gameState.inventory.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-3 text-center text-xs text-gray-400 py-6 border border-dashed border-nude-300 rounded-xl">
+                        Tiada koleksi Abaya bersedia. Sila mereka di Studio.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = gameState.inventory.map(item => {
+                const isSelected = gameState.selectedAbayaForCust && gameState.selectedAbayaForCust.id === item.id;
+                return `
+                    <div onclick="selectAbayaForCustomer(${item.id})" class="p-3 bg-white rounded-xl border ${isSelected ? 'border-2 border-gold bg-gold/5 shadow-md' : 'border-nude-200'} cursor-pointer transition">
+                        <div class="flex justify-between items-start mb-1">
+                            <h5 class="font-bold text-xs text-gray-800 truncate">${item.name}</h5>
+                            <span class="w-3 h-3 rounded-full inline-block border border-black/20" style="background:${item.color}"></span>
+                        </div>
+                        <p class="text-[10px] text-gray-400">${FABRICS_DATA[item.fabric].name} • ${ACCS_DATA[item.acc].name}</p>
+                        <p class="text-xs font-bold text-emerald-800 mt-2">RM ${item.price}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function selectAbayaForCustomer(abayaId) {
+            playSound('click');
+            const item = gameState.inventory.find(i => i.id === abayaId);
+            if (!item) return;
+
+            gameState.selectedAbayaForCust = item;
+            renderRackForCustomer();
+
+            const btn = document.getElementById('recommend-sell-btn');
+            btn.disabled = false;
+            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+
+        function sellSelectedAbayaToCustomer() {
+            if (!gameState.activeCustomer || !gameState.selectedAbayaForCust) return;
+
+            const cust = gameState.activeCustomer;
+            const abaya = gameState.selectedAbayaForCust;
+
+            // Calculate satisfaction & match rating (1 - 5 stars)
+            let matchScore = 1;
+            if (abaya.cut === cust.prefCut) matchScore += 1;
+            if (abaya.fabric === cust.prefFabric) matchScore += 1;
+            if (abaya.color === cust.prefColor.hex) matchScore += 1;
+            if (abaya.acc === cust.prefAcc) matchScore += 1;
+
+            // Price check vs budget
+            const fitsBudget = abaya.price <= cust.budget;
+
+            if (!fitsBudget) {
+                alert(`Pelanggan ${cust.name} menolak kerana harga (RM ${abaya.price}) melebihi bajet (RM ${cust.budget})!`);
+                return;
+            }
+
+            // Calculation of gains
+            const revenue = abaya.price;
+            const tip = matchScore >= 4 ? Math.round(revenue * 0.15) : 0;
+            const totalGain = revenue + tip;
+            const repGain = matchScore * 5;
+
+            // State Updates
+            gameState.money += totalGain;
+            gameState.reputation += repGain;
+            gameState.salesCount += 1;
+
+            // Remove sold abaya from inventory
+            gameState.inventory = gameState.inventory.filter(i => i.id !== abaya.id);
+
+            // Remove customer from queue
+            customerQueue = customerQueue.filter(c => c.id !== cust.id);
+            gameState.activeCustomer = null;
+            gameState.selectedAbayaForCust = null;
+
+            playSound('sell');
+            confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
+
+            // Reset Fitting UI
+            document.getElementById('empty-fitting-state').classList.remove('hidden');
+            document.getElementById('active-fitting-content').classList.add('hidden');
+            document.getElementById('active-fitting-content').classList.remove('flex');
+
+            checkLevelUp();
+            updateUI();
+            renderCustomerQueue();
+            renderShowcase();
+        }
+
+        function declineCurrentCustomer() {
+            if (!gameState.activeCustomer) return;
+            playSound('click');
+            customerQueue = customerQueue.filter(c => c.id !== gameState.activeCustomer.id);
+            gameState.activeCustomer = null;
+
+            document.getElementById('empty-fitting-state').classList.remove('hidden');
+            document.getElementById('active-fitting-content').classList.add('hidden');
+            document.getElementById('active-fitting-content').classList.remove('flex');
+
+            renderCustomerQueue();
+        }
+
+        function autoServeCustomer() {
+            if (customerQueue.length === 0 || gameState.inventory.length === 0) return;
+            const cust = customerQueue[0];
+            const abaya = gameState.inventory[0];
+
+            if (abaya.price <= cust.budget) {
+                gameState.money += abaya.price;
+                gameState.reputation += 10;
+                gameState.salesCount += 1;
+
+                gameState.inventory.shift();
+                customerQueue.shift();
+
+                playSound('sell');
+                updateUI();
+                renderCustomerQueue();
+                renderShowcase();
+            }
+        }
+
+        /* ================= DESIGN STUDIO CONTROLS ================= */
+        function renderStudioOptions() {
+            // Cuts
+            const cutsContainer = document.getElementById('studio-cuts');
+            cutsContainer.innerHTML = Object.keys(CUTS_DATA).map(key => `
+                <button onclick="setDesignCut('${key}')" class="p-2 text-xs rounded-xl border ${gameState.currentDesign.cut === key ? 'border-gold bg-gold/15 font-bold text-gold-dark' : 'border-nude-200 bg-white text-gray-600'} transition">
+                    ${CUTS_DATA[key].name}
+                </button>
+            `).join('');
+
+            // Fabrics
+            const fabricsContainer = document.getElementById('studio-fabrics');
+            fabricsContainer.innerHTML = Object.keys(FABRICS_DATA).map(key => {
+                const isUnlocked = gameState.unlockedFabrics.includes(key) || !FABRICS_DATA[key].reqUnlock;
+                return `
+                    <button onclick="${isUnlocked ? `setDesignFabric('${key}')` : ''}" ${!isUnlocked ? 'disabled' : ''} class="p-2 text-xs rounded-xl border ${gameState.currentDesign.fabric === key ? 'border-gold bg-gold/15 font-bold text-gold-dark' : 'border-nude-200 bg-white text-gray-600'} ${!isUnlocked ? 'opacity-40 cursor-not-allowed' : 'transition'}">
+                        ${FABRICS_DATA[key].name} ${!isUnlocked ? '🔒' : ''}
+                    </button>
+                `;
+            }).join('');
+
+            // Colors
+            const colorsContainer = document.getElementById('studio-colors');
+            colorsContainer.innerHTML = COLORS_DATA.map(c => `
+                <button onclick="setDesignColor('${c.hex}', '${c.name}')" class="w-7 h-7 rounded-full border-2 ${gameState.currentDesign.color === c.hex ? 'border-gold scale-110 shadow-md' : 'border-white'} transition" style="background:${c.hex}" title="${c.name}"></button>
+            `).join('');
+
+            // Accessories
+            const accsContainer = document.getElementById('studio-accs');
+            accsContainer.innerHTML = Object.keys(ACCS_DATA).map(key => {
+                const isUnlocked = gameState.unlockedAccs.includes(key) || !ACCS_DATA[key].reqUnlock;
+                return `
+                    <button onclick="${isUnlocked ? `setDesignAcc('${key}')` : ''}" ${!isUnlocked ? 'disabled' : ''} class="p-2 text-xs rounded-xl border ${gameState.currentDesign.acc === key ? 'border-gold bg-gold/15 font-bold text-gold-dark' : 'border-nude-200 bg-white text-gray-600'} ${!isUnlocked ? 'opacity-40 cursor-not-allowed' : 'transition'}">
+                        ${ACCS_DATA[key].name} ${!isUnlocked ? '🔒' : ''}
+                    </button>
+                `;
+            }).join('');
+
+            // Shawls
+            const shawlsContainer = document.getElementById('studio-shawls');
+            shawlsContainer.innerHTML = SHAWLS_DATA.map(s => `
+                <button onclick="setDesignShawl('${s.hex}')" class="p-2 text-xs rounded-xl border ${gameState.currentDesign.shawl === s.hex ? 'border-gold bg-gold/15 font-bold text-gold-dark' : 'border-nude-200 bg-white text-gray-600'} flex items-center justify-center gap-2">
+                    <span class="w-3 h-3 rounded-full inline-block border border-black/20" style="background:${s.hex}"></span> ${s.name}
+                </button>
+            `).join('');
+        }
+
+        function setDesignCut(cutKey) { playSound('click'); gameState.currentDesign.cut = cutKey; renderStudioOptions(); updateStudioPreview(); }
+        function setDesignFabric(fabKey) { playSound('click'); gameState.currentDesign.fabric = fabKey; renderStudioOptions(); updateStudioPreview(); }
+        function setDesignColor(hex, name) { playSound('click'); gameState.currentDesign.color = hex; gameState.currentDesign.colorName = name; renderStudioOptions(); updateStudioPreview(); }
+        function setDesignAcc(accKey) { playSound('click'); gameState.currentDesign.acc = accKey; renderStudioOptions(); updateStudioPreview(); }
+        function setDesignShawl(hex) { playSound('click'); gameState.currentDesign.shawl = hex; renderStudioOptions(); updateStudioPreview(); }
+
+        function updateStudioPreview() {
+            const des = gameState.currentDesign;
+            
+            // Calculate Craft Cost
+            const baseFabCost = FABRICS_DATA[des.fabric].baseCost;
+            const cutMult = CUTS_DATA[des.cut].costMult;
+            const accCost = ACCS_DATA[des.acc].cost;
+            const totalCraftCost = Math.round((baseFabCost * cutMult) + accCost);
+
+            document.getElementById('creation-cost-text').innerText = `Kos Bahan: RM ${totalCraftCost}`;
+
+            // Mutate SVG Elements
+            document.getElementById('svg-hijab').setAttribute('fill', des.shawl);
+            document.getElementById('svg-dress-base').setAttribute('fill', des.color);
+            document.getElementById('svg-dress-base').setAttribute('d', CUTS_DATA[des.cut].pathD);
+
+            // Sleeve color tone slight variation
+            document.getElementById('svg-sleeve-left').setAttribute('fill', des.color);
+            document.getElementById('svg-sleeve-right').setAttribute('fill', des.color);
+
+            // Preview Info Displays
+            const nameInput = document.getElementById('abaya-name-field').value;
+            const priceInput = document.getElementById('abaya-price-field').value;
+            document.getElementById('preview-title-display').innerText = nameInput || 'Abaya Custom';
+            document.getElementById('preview-desc-display').innerText = `${FABRICS_DATA[des.fabric].name} • ${ACCS_DATA[des.acc].name} • ${CUTS_DATA[des.cut].name}`;
+            document.getElementById('preview-price-display').innerText = `RM ${priceInput || 0}`;
+        }
+
+        function saveCustomAbaya() {
+            const des = gameState.currentDesign;
+            const name = document.getElementById('abaya-name-field').value || 'Abaya Royale';
+            const price = parseInt(document.getElementById('abaya-price-field').value) || 300;
+
+            const baseFabCost = FABRICS_DATA[des.fabric].baseCost;
+            const cutMult = CUTS_DATA[des.cut].costMult;
+            const accCost = ACCS_DATA[des.acc].cost;
+            const totalCraftCost = Math.round((baseFabCost * cutMult) + accCost);
+
+            if (gameState.money < totalCraftCost) {
+                alert(`Wang tunai tidak mencukupi untuk kos penghasilan bahan (RM ${totalCraftCost})!`);
+                return;
+            }
+
+            gameState.money -= totalCraftCost;
+
+            const newAbaya = {
+                id: Date.now(),
+                name: name,
+                price: price,
+                cut: des.cut,
+                fabric: des.fabric,
+                color: des.color,
+                colorName: des.colorName,
+                acc: des.acc,
+                shawl: des.shawl
+            };
+
+            gameState.inventory.push(newAbaya);
+            playSound('sell');
+            confetti({ particleCount: 35, spread: 50, origin: { y: 0.6 } });
+
+            updateUI();
+            renderShowcase();
+            switchTab('showcase');
+        }
+
+        /* ================= SHOWCASE RACK ================= */
+        function renderShowcase() {
+            const container = document.getElementById('showcase-grid');
+            document.getElementById('showcase-count').innerText = gameState.inventory.length;
+
+            if (gameState.inventory.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-gray-400">
+                        <i class="fa-solid fa-shirt text-3xl mb-2 text-gold"></i>
+                        <p class="text-xs">Tiada koleksi abaya di pameran. Sila cipta rekaan baru di Studio!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = gameState.inventory.map(item => `
+                <div class="card-glass rounded-xl p-4 flex flex-col justify-between border border-nude-200 hover:border-gold transition">
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="w-4 h-4 rounded-full border border-black/20" style="background:${item.color}"></span>
+                            <span class="text-[10px] bg-gold/15 text-gold-dark font-bold px-2 py-0.5 rounded-full">${CUTS_DATA[item.cut].name}</span>
+                        </div>
+                        <h4 class="font-playfair font-bold text-sm text-gray-900">${item.name}</h4>
+                        <p class="text-[10px] text-gray-500 mt-0.5">${FABRICS_DATA[item.fabric].name} • ${ACCS_DATA[item.acc].name}</p>
+                    </div>
+                    <div class="flex justify-between items-center mt-4 pt-3 border-t border-nude-200">
+                        <span class="text-sm font-bold text-emerald-800">RM ${item.price}</span>
+                        <button onclick="deleteAbayaFromRack(${item.id})" class="text-xs text-rose-600 hover:text-rose-800" title="Padam Koleksi"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function deleteAbayaFromRack(id) {
+            playSound('click');
+            gameState.inventory = gameState.inventory.filter(i => i.id !== id);
+            renderShowcase();
+        }
+
+        /* ================= UPGRADES STORE ================= */
+        function renderUpgrades() {
+            // Materials list
+            const matContainer = document.getElementById('material-upgrades-list');
+            const mats = [...UPGRADES_CATALOG.fabrics, ...UPGRADES_CATALOG.accs];
+            matContainer.innerHTML = mats.map(item => {
+                const isUnlocked = gameState.unlockedFabrics.includes(item.id) || gameState.unlockedAccs.includes(item.id);
+                return `
+                    <div class="p-3 bg-white rounded-xl border border-nude-200 flex items-center justify-between gap-3">
+                        <div>
+                            <h4 class="font-bold text-xs text-gray-800">${item.name}</h4>
+                            <p class="text-[10px] text-gray-400">${item.desc}</p>
+                        </div>
+                        <button onclick="buyUpgrade('${item.id}', ${item.cost}, 'material')" ${isUnlocked ? 'disabled' : ''} class="${isUnlocked ? 'bg-emerald-100 text-emerald-800' : 'btn-gold'} px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap">
+                            ${isUnlocked ? 'Dibeli ✓' : `RM ${item.cost}`}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            // Interior list
+            const intContainer = document.getElementById('interior-upgrades-list');
+            intContainer.innerHTML = UPGRADES_CATALOG.interiors.map(item => {
+                const isUnlocked = gameState.unlockedInteriors.includes(item.id) || (item.id === 'assistant' && gameState.assistantLevel > 0);
+                return `
+                    <div class="p-3 bg-white rounded-xl border border-nude-200 flex items-center justify-between gap-3">
+                        <div>
+                            <h4 class="font-bold text-xs text-gray-800">${item.name}</h4>
+                            <p class="text-[10px] text-gray-400">${item.desc}</p>
+                        </div>
+                        <button onclick="buyUpgrade('${item.id}', ${item.cost}, 'interior')" ${isUnlocked ? 'disabled' : ''} class="${isUnlocked ? 'bg-emerald-100 text-emerald-800' : 'btn-gold'} px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap">
+                            ${isUnlocked ? 'Diupah ✓' : `RM ${item.cost}`}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function buyUpgrade(id, cost, category) {
+            if (gameState.money < cost) {
+                alert(`Wang tunai tidak mencukupi untuk membeli naik taraf ini (RM ${cost})!`);
+                return;
+            }
+
+            gameState.money -= cost;
+
+            if (id === 'velvet') gameState.unlockedFabrics.push('velvet');
+            if (id === 'gold_emb') gameState.unlockedAccs.push('gold_emb');
+            if (id === 'swarovski') gameState.unlockedAccs.push('swarovski');
+            if (id === 'chandelier') gameState.unlockedInteriors.push('chandelier');
+            if (id === 'assistant') {
+                gameState.assistantLevel = 1;
+                document.getElementById('assistant-status').innerText = 'Aktif (Level 1)';
+            }
+
+            playSound('level');
+            confetti({ particleCount: 40, spread: 60 });
+
+            updateUI();
+            renderStudioOptions();
+            renderUpgrades();
+        }
+
+        /* ================= GAME UTILS & UPDATES ================= */
+        function checkLevelUp() {
+            const newLevel = Math.floor(gameState.reputation / 50) + 1;
+            if (newLevel > gameState.level) {
+                gameState.level = newLevel;
+                playSound('level');
+                confetti({ particleCount: 80, spread: 80, origin: { y: 0.5 } });
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('money-display').innerText = `RM ${gameState.money}`;
+            document.getElementById('reputation-display').innerText = `${gameState.reputation} ★`;
+            document.getElementById('sales-display').innerText = `${gameState.salesCount} Abaya`;
+            document.getElementById('player-level').innerText = gameState.level;
+
+            // Update Boutique Rank Title
+            let rank = 'Boutique Glamour';
+            if (gameState.level >= 3) rank = 'Haute Couture House';
+            if (gameState.level >= 5) rank = 'Empayar Abaya Global';
+            document.getElementById('rank-badge').innerText = rank;
+        }
+    </script>
+</body>
+</html>
